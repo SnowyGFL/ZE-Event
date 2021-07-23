@@ -43,7 +43,7 @@ exports.getPlayerVote = async (req, res) => {
 }
 
 exports.deleteAllVotesFromServer = async (req, res) => {
-    MapVote.deleteMany({ server: req.params.server }, (err, results) => {
+    MapVote.deleteMany({ server: req.params.server }, (err, result) => {
         if (err)
             res.json({ success: false, error: err });
         else
@@ -52,5 +52,16 @@ exports.deleteAllVotesFromServer = async (req, res) => {
 }
 
 exports.getVoteList = async (req, res) => {
-
+    MapVote.aggregate( [
+        { $match: { server: req.params.server } },
+        { $group: { _id: "$mapname","count": { $sum : 1 } } },
+        { $project: { _id: 0, mapname: "$_id", votes: "$count" }},
+        { $sort: { votes: -1 } },
+        { $limit: 5 } ], (err, result) => {
+        if (err)
+            res.json({ success: false, error: err });
+        else if (!result || !result.length)
+            res.json({ success: false, error: "No votes found in the database." });
+        else res.json({ success: true, vote_results: result});
+    })
 }

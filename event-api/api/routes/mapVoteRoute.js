@@ -7,7 +7,7 @@ module.exports = (app) => {
     app.route('/event/v1/votemap/:playerid/:server')
         .get(mapVote.getPlayerVote);
 
-    app.route('/event/v1/listvotes/:server')
+    app.route('/event/v1/votelist/:server')
         .get(mapVote.getVoteList);
 
     app.route('/event/v1/deletevotes/:server')
