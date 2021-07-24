@@ -24,6 +24,21 @@ mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedT
 // Middlewares
 app.use(bodyParser.json());
 app.use(morgan('dev'));
+app.use("/event/v1", verifyAPIKey, (req, res, next) => {
+    next();
+});
+
+function verifyAPIKey (req, res, next) {
+    var headers = req.headers[process.env.HEADER];
+    if (typeof headers !== 'undefined') {
+        if (headers === process.env.APIKEY)
+            next();
+        else
+            res.status(401).json({ success: false, error: "Unauthorized Usage of API" });
+    }
+    else
+        res.status(401).json({ success: false, error: "Unauthorized Usage of API" });
+}
 
 // Routes
 const voteStatus = require('./api/routes/getVoteStatusRoute');
